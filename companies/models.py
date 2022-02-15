@@ -9,6 +9,13 @@ class Company(TimeStampModel):
     class Meta:
         db_table = 'companies'
 
+class CompanyImage(TimeStampModel):
+    image_url = models.URLField(max_length=500)
+    company   = models.ForeignKey('Company', on_delete=models.CASCADE, related_name='company_images')
+
+    class Meta:
+        db_table = 'company_images'
+
 class Country(models.Model):
     name = models.CharField(max_length=45)
 
