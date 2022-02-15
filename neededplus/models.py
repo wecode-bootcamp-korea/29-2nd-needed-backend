@@ -1,4 +1,3 @@
-from http.client import PRECONDITION_REQUIRED
 from django.db   import models
 from core.models import TimeStampModel
 
