@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
         ('users', '0001_initial'),
         ('recruitments', '0001_initial'),
         ('resumes', '0001_initial'),
+        ('users', '0001_initial'),
+        ('recruitments', '0001_initial'),
     ]
 
     operations = [
