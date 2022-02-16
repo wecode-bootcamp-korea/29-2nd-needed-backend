@@ -43,4 +43,3 @@ class KakaoAPI:
             return JsonResponse({'message': 'INVALID_KAKAO_USER'}, status=400)
         
         return response.json()
-

@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True, null=True)),
                 ('updated_at', models.DateTimeField(auto_now=True, null=True)),
+                ('deleted_at', models.DateTimeField(default=None, null=True)),
             ],
             options={
                 'db_table': 'applications',
