@@ -1,5 +1,5 @@
 from django.db   import models
-from core.models import TimeStampModel
+from core.models import TimeStampModel, SoftDeleteModel
 
 class OccupationCategory(TimeStampModel):
     name = models.CharField(max_length=50)
@@ -25,7 +25,7 @@ class Recruitment(TimeStampModel):
     class Meta:
         db_table = 'recruitments'
 
-class Application(TimeStampModel):
+class Application(TimeStampModel, SoftDeleteModel):
     user               = models.ForeignKey('OccupationSubcategory', on_delete=models.CASCADE, related_name='applications')
     recruitment        = models.ForeignKey('Recruitment', on_delete=models.CASCADE, related_name='applications')
     application_status = models.ForeignKey('ApplicationStatus', on_delete=models.CASCADE, related_name='applications')
