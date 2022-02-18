@@ -85,3 +85,39 @@ class KakaoSignInTest(TestCase):
     
         self.assertEqual(response.json(), {'message' : "KEY_ERROR"})
         self.assertEqual(response.status_code, 400)
+
+class UserDataTest(TestCase):
+    def setUp(self):
+        SocialCompany.objects.create(
+            id   = 1,
+            name = '카카오' 
+        )
+        SocialLogin.objects.create(
+            id                    = 1,
+            name                  = 'test',
+            email                 = 'test123@gmail.com',
+            identification_number = '132234245253',
+            profile_image         = '123123123123.jpg',
+            social_company        = SocialCompany.objects.get(id=1)
+        )
+        
+    def tearDown(self):
+        SocialCompany.objects.all().delete()
+        SocialLogin.objects.all().delete()
+        User.objects.all().delete()
+        
+    def test_user_mypage_data_create_success(self):
+        client = Client()
+        user_data = {
+            'social_login'  : 1,
+            'phone_number'  : '01018232345',
+            'address'       : '테헤란로',
+            'career'        : 1,
+            'salary'        : 30000000,
+            }
+        
+        access_token = jwt.encode({'user_id': 1}, settings.SECRET_KEY, settings.ALGORITHM)
+        headers      = {"HTTP_Authorization" : access_token}
+        response     =  client.post('/users/mypage', json.dumps(user_data), content_type='application/json', **headers)
+        
+        self.assertEqual(response.status_code, 201)

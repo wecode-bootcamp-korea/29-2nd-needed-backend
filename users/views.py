@@ -7,7 +7,7 @@ from django.http      import JsonResponse
 from django.views     import View
 from django.conf      import settings
 
-from core.utils       import KakaoAPI
+from core.utils       import KakaoAPI, authorization
 from users.models     import SocialCompanyEnum, User, SocialCompany, SocialLogin
 
 class KakaoSignInView(View):
@@ -46,4 +46,45 @@ class KakaoCallBackView(View):
         
         except SocialLogin.DoesNotExist:
             return JsonResponse({'message': 'INVALID_USER'}, status=404)
+
+class ProfileView(View):
+    @authorization
+    def post(self, request):
+        try:
+            user_data = json.loads(request.body)
+            
+            data, created = User.objects.update_or_create(
+                social_login  = request.user,
+                defaults      = {
+                    'phone_number': user_data.get('phone_number',None),
+                    'address'     : user_data.get('address',None),
+                    'career'      : user_data.get('career',None),
+                    'salary'      : user_data.get('salary',None),
+                    }
+                )
+            
+            status_code = 201 if created else 204 
+            
+            return JsonResponse({'message' : 'SUCCESS'}, status=status_code)
+
+        except KeyError:
+            return JsonResponse({'message' : 'KEY_ERROR'}, status = 400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'message' : 'JSON_DECODE_ERROR'}, status = 400)
+
+    @authorization
+    def get(self, request):
+        user = User.objects.select_related("social_login").get(social_login = request.user) 
+
+        result = {
+            'email'         : user.social_login.email,
+            'profile_image' : user.social_login.profile_image,
+            'name'          : user.social_login.name,
+            'phone_number'  : user.phone_number,
+            'address'       : user.address,
+            'career'        : user.career,
+            'salary'        : user.salary,
+        }
         
+        return JsonResponse({'message' : 'SUCCESS', 'result' : result}, status = 200)
