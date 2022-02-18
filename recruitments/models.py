@@ -17,7 +17,7 @@ class OccupationSubcategory(TimeStampModel):
 class Recruitment(TimeStampModel):
     name                   = models.CharField(max_length=50)
     description            = models.TextField(max_length=2000)
-    occupation_subcategory = models.ForeignKey('OccupationSubcategory', on_delete=models.CASCADE)
+    occupation_subcategory = models.ForeignKey('OccupationSubcategory', on_delete=models.CASCADE,related_name='recruitments')
     company                = models.ForeignKey('companies.Company', on_delete=models.CASCADE, related_name='recruitments')
     deadline               = models.DateField()
     compensation           = models.PositiveIntegerField()
