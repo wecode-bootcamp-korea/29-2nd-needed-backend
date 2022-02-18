@@ -20,6 +20,7 @@ class Recruitment(TimeStampModel):
     occupation_subcategory = models.ForeignKey('OccupationSubcategory', on_delete=models.CASCADE)
     company                = models.ForeignKey('companies.Company', on_delete=models.CASCADE, related_name='recruitments')
     deadline               = models.DateField()
+    compensation           = models.PositiveIntegerField()
     address                = models.CharField(max_length=200)           
 
     class Meta:
