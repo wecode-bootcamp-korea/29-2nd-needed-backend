@@ -2,8 +2,9 @@ import requests, re, jwt
 
 from django.core.exceptions import ValidationError
 from django.http            import JsonResponse
+from django.conf            import settings
 
-from users.models           import User
+from users.models           import SocialLogin
 
 class KakaoAPI:
     def __init__(self, data):
@@ -43,3 +44,20 @@ class KakaoAPI:
             return JsonResponse({'message': 'INVALID_KAKAO_USER'}, status=400)
         
         return response.json()
+
+def authorization(func):
+    def wrapper(self, request, *args, **kwargs):
+        try:
+            access_token = request.headers.get('Authorization', None)         
+            payload      = jwt.decode(access_token, settings.SECRET_KEY, settings.ALGORITHM)  
+            request.user = SocialLogin.objects.get(id=payload['user_id'])
+
+        except jwt.exceptions.DecodeError:                                  
+            return JsonResponse({'message' : 'INVALID_TOKEN' }, status=401)
+
+        except SocialLogin.DoesNotExist:                                        
+            return JsonResponse({'message' : 'INVALID_USER'}, status=401)
+
+        return func(self, request, *args, **kwargs)
+
+    return wrapper
