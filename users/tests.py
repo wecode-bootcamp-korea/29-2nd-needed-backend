@@ -1,4 +1,4 @@
-import jwt
+import jwt, json
 
 from django.test    import TestCase, Client
 from django.conf    import settings
@@ -9,16 +9,21 @@ from users.models   import *
 
 class KakaoSignInTest(TestCase):
     def setUp(self):
-        pass
+        SocialCompany.objects.create(
+            id   = 1,
+            name = '카카오' 
+        )
     
     def tearDown(self):
         SocialLogin.objects.all().delete()
     
-    @patch("users.views.requests")
+    @patch("core.utils.requests")
     def test_kakao_login_success(self, mocked_requests):
         client = Client()
 
         class MockedResponse:
+            status_code = 200
+            
             def json(self):
                 return {
                     "id": 2145645622,
@@ -45,22 +50,26 @@ class KakaoSignInTest(TestCase):
                 }
 
         mocked_requests.get = mock.MagicMock(return_value = MockedResponse())
-        headers             = {"HTTP_access-token" : "a123423423412341234"}
+        headers             = {"HTTP_access-token" : "1234"}
         response            = client.get("/users/signin/kakao/callback", **headers)
 
-        self.assertEqual(response.status_code, 200 or 201)
+        self.assertEqual(response.status_code, 201)
 
-    @patch("users.views.requests")
+    @patch("core.utils.requests")
     def test_kakao_signin_client_get_key_error(self, mocked_requests):
         client = Client()
 
         class MockedResponse:
+            status_code = 200
+            
             def json(self):
 
                 return {
                     "id":114142,
                     "kakao_account": { 
                         "profile_needs_agreement": False,
+                        "profile_nickname_needs_agreement": False,
+                        "profile_image_needs_agreement": False,
                         "profile": {
                             "nickname": "김준영",
                             "thumbnail_image_url": "http://k.kakaocdn.net/dn/dpk9l1/btqmGhA2lKL/Oz0wDuJn1YV2DIn92f6DVK/img_110x110.jpg",
