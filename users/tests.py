@@ -118,6 +118,6 @@ class UserDataTest(TestCase):
         
         access_token = jwt.encode({'user_id': 1}, settings.SECRET_KEY, settings.ALGORITHM)
         headers      = {"HTTP_Authorization" : access_token}
-        response     =  client.post('/users/mypage', json.dumps(user_data), content_type='application/json', **headers)
+        response     =  client.post('/users/profile', json.dumps(user_data), content_type='application/json', **headers)
         
         self.assertEqual(response.status_code, 201)

@@ -16,7 +16,7 @@ class RecruitmentsListTest(TestCase):
             occupation_category = OccupationCategory(id=1)
         )
         Country.objects.create(
-            name                = '대한민국'
+            name                = '한국'
         )
         Province.objects.create(
             name                = '서울',
@@ -31,6 +31,10 @@ class RecruitmentsListTest(TestCase):
             description         = '설명',
             detail_area         = DetailArea(id=1)
         )
+        CompanyImage.objects.create(
+            image_url           = 'test.jpg',
+            company             = Company(id=1)
+        )
         Tag.objects.create(
             name                = '워라밸'
         )
@@ -40,7 +44,8 @@ class RecruitmentsListTest(TestCase):
         )
         Recruitment.objects.create(
             name                   = '제목',
-            description             = '설명',
+            description            = '설명',
+            compensation           = 1000,
             deadline               = '2022-03-01',
             address                = '테헤란로',
             company                = Company(id=1),
@@ -61,15 +66,19 @@ class RecruitmentsListTest(TestCase):
     def test_get_recruitment_list_success(self):
         client = Client()
         
-        response =  client.get('/recruitments?category=1&subcategory=1&country=대한민국&province=서울&detail=강남구&tag=1')
+        response =  client.get('/recruitments?category=1&subcategory=1&country=한국&province=서울&detail=강남구&tag=1')
         
         self.assertEqual(response.json(), 
             {
                 "Recruitment": [
                     {
-                        "company_name": "회사",
-                        "country": "대한민국",
+                        "company_name" : "회사",
+                        "compensation" :1000,
+                        "country": "한국",
                         "id": 1,
+                        "logo_image": {
+                            "image": "test.jpg"
+                        },
                         "name": "제목",
                         "province": "서울"
                     }

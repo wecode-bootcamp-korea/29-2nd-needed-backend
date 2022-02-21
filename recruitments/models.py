@@ -53,14 +53,14 @@ class ApplicationStatus(TimeStampModel):
 
 class Bookmark(TimeStampModel):
     recruitment = models.ForeignKey('Recruitment', on_delete=models.CASCADE, related_name='bookmarks')
-    user        = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='bookmarks')
+    user        = models.ForeignKey('users.SocialLogin', on_delete=models.CASCADE, related_name='bookmarks')
 
     class Meta:
         db_table = 'bookmarks'
         
 class ApplicationEnum(Enum):
-    APPLICATION_COMPLELTE = 1
-    ACCPETED_DOCUMENT     = 2
-    FINAL_ACCEPTANCE      = 3
-    FAIL_ACCEPTANCE       = 4
+    APPLICATION_COMPLETE = 1
+    ACCEPTED_DOCUMENT    = 2
+    FINAL_ACCEPTANCE     = 3
+    FAIL_ACCEPTANCE      = 4
     

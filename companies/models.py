@@ -5,6 +5,7 @@ class Company(TimeStampModel):
     name        = models.CharField(max_length=45)
     description = models.URLField(max_length=1000)
     detail_area = models.ForeignKey('DetailArea', on_delete=models.CASCADE, related_name='companys')
+    tags        = models.ManyToManyField('Tag',through='TagCompany')
 
     class Meta:
         db_table = 'companies'
