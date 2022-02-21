@@ -9,7 +9,7 @@ class User(TimeStampModel):
     career                 = models.PositiveIntegerField(null=True)
     salary                 = models.PositiveIntegerField(null=True)
     is_subscription        = models.BooleanField(default=False)
-    subscription_date      = models.DateField()
+    subscription_date      = models.DateField(null=True)
     social_login           = models.ForeignKey('SocialLogin', on_delete=models.CASCADE, related_name='users')
     occupation_subcategory = models.ForeignKey('recruitments.OccupationSubcategory', on_delete=models.CASCADE,related_name='users')
     
