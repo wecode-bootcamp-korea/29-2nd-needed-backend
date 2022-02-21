@@ -6,9 +6,11 @@ from django.shortcuts import redirect
 from django.http      import JsonResponse
 from django.views     import View
 from django.conf      import settings
+from django.db.models import Case, When, Count
 
-from core.utils       import KakaoAPI, authorization
-from users.models     import SocialCompanyEnum, User, SocialCompany, SocialLogin
+from core.utils          import KakaoAPI, authorization
+from users.models        import SocialCompanyEnum, User, SocialCompany, SocialLogin
+from recruitments.models import OccupationSubcategory
 
 class KakaoSignInView(View):
     def get(self, request):
@@ -51,15 +53,17 @@ class ProfileView(View):
     @authorization
     def post(self, request):
         try:
-            user_data = json.loads(request.body)
+            user_data  = json.loads(request.body)
+            occupation = user_data.get('occupation',None)
             
             data, created = User.objects.update_or_create(
                 social_login  = request.user,
                 defaults      = {
-                    'phone_number': user_data.get('phone_number',None),
-                    'address'     : user_data.get('address',None),
-                    'career'      : user_data.get('career',None),
-                    'salary'      : user_data.get('salary',None),
+                    'phone_number'            : user_data.get('phone_number',None),
+                    'address'                 : user_data.get('address',None),
+                    'career'                  : user_data.get('career',None),
+                    'salary'                  : user_data.get('salary',None),
+                    'occupation_subcategory'  : OccupationSubcategory.objects.get(id = occupation) if occupation is not None else None 
                     }
                 )
             
@@ -75,16 +79,41 @@ class ProfileView(View):
 
     @authorization
     def get(self, request):
-        user = User.objects.select_related("social_login").get(social_login = request.user) 
+        application_parameter = {
+            'application_complete' : 1,
+            'accepted_document'    : 2,
+            'final_acceptance'     : 3,
+            'fail_acceptance'      : 4
+        }
+        
+        annotate_set = {key : Count(
+                                Case(
+                                    When(social_login__applications__application_status = value ,
+                                        then = 'social_login__applications')
+                                    )
+                                )for key,value in application_parameter.items()}
+
+        user = User.objects \
+                    .select_related("social_login","occupation_subcategory__occupation_category") \
+                    .annotate(**annotate_set) \
+                    .get(social_login = request.user) 
 
         result = {
-            'email'         : user.social_login.email,
-            'profile_image' : user.social_login.profile_image,
-            'name'          : user.social_login.name,
-            'phone_number'  : user.phone_number,
-            'address'       : user.address,
-            'career'        : user.career,
-            'salary'        : user.salary,
+            'email'           : user.social_login.email,
+            'profile_image'   : user.social_login.profile_image,
+            'name'            : user.social_login.name,
+            'job_category'    : user.occupation_subcategory.occupation_category.name,
+            'job_subcategory' : user.occupation_subcategory.name,
+            'phone_number'    : user.phone_number,
+            'address'         : user.address,
+            'career'          : user.career,
+            'salary'          : user.salary,
+            'application'     : [{
+                'application_complete' : user.application_complete,
+                'accepted_document'    : user.accepted_document,
+                'final_acceptance'     : user.final_acceptance,
+                'fail_acceptance'      : user.fail_acceptance
+            }]
         }
         
         return JsonResponse({'message' : 'SUCCESS', 'result' : result}, status = 200)

@@ -40,15 +40,17 @@ class RecruitmentsList(View):
             recruitments = Recruitment.objects \
                 .order_by(request.GET.get("sort",'id')) \
                 .select_related('company__detail_area__province__country') \
-                .prefetch_related('company__tag_companies__tag') \
+                .prefetch_related('company__tag_companies__tag','company__company_images') \
                 .filter(**filter_set)
                 
             result = [{
                 "id"           : recruitment.id,
                 "name"         : recruitment.name,
+                "compensation" : recruitment.compensation,
                 "company_name" : recruitment.company.name,
                 "country"      : recruitment.company.detail_area.province.country.name,
                 "province"     : recruitment.company.detail_area.province.name,
+                "logo_image"   : [{'image' : image.image_url} for image in recruitment.company.company_images.all()][0]
             }for recruitment in recruitments]
         
             return JsonResponse({'message':'SUCCESS' ,'Recruitment' : result}, status=200)
