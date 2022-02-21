@@ -2,7 +2,7 @@ from django.views        import View
 from django.http         import JsonResponse
 from django.db.models    import Q, Prefetch
 
-from recruitments.models import OccupationCategory,Recruitment
+from recruitments.models import OccupationCategory,Recruitment, OccupationSubcategory
 from companies.models    import Company, Tag
 
 
@@ -21,6 +21,24 @@ class CategoryView(View):
 
         return JsonResponse({"results" : results}, status = 200)
 
+class SubCategoryView(View):
+    def get(self, request):
+        search           = request.GET.get('search',None)            
+        q = Q()
+
+        if search:
+            q = Q(name__icontains = search)
+
+        subcategories = OccupationSubcategory.objects.filter(q)
+
+        results = [{
+            "id" : subcategory.id,
+            "name" : subcategory.name
+        }for subcategory in subcategories]
+
+        return JsonResponse({"results" : results}, status = 200)
+
+
 class RecruitmentsList(View):
     def get(self,request):
         try:
@@ -36,6 +54,9 @@ class RecruitmentsList(View):
             filter_set = {
                 filters.get(key) : value for (key,value) in dict(request.GET).items() if filters.get(key)
             }
+
+            if request.GET.get('search'):
+                filter_set["search"] = "occupation_subcategory__name__icontains"
             
             recruitments = Recruitment.objects \
                 .order_by(request.GET.get("sort",'id')) \

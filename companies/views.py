@@ -9,10 +9,17 @@ from companies.models      import Company
 class CompanyView(View):
     def get(self, request, company_id):
         try:
+            search = request.GET.get('search',None)
+            q = Q()
+
+            if search:
+                q = Q(name__icontains = search)
+
             company = Company.objects \
+                                .filter(q) \
                                 .prefetch_related('company_images','tags','recruitments') \
                                 .get(id = company_id)
-            
+                                
             result  = {
                 'id'           : company.id,
                 'name'         : company.name,
