@@ -4,17 +4,21 @@ from django.db   import models
 from core.models import TimeStampModel
 
 class User(TimeStampModel):
-    phone_number    = models.CharField(max_length=100, null=True)
-    address         = models.CharField(max_length=100, null=True)
-    career          = models.PositiveIntegerField(null=True)
-    salary          = models.PositiveIntegerField(null=True)
-    is_subscription = models.BooleanField(default=False)
-    social_login    = models.ForeignKey('SocialLogin', on_delete=models.CASCADE, related_name='users')
+    phone_number           = models.CharField(max_length=100, null=True)
+    address                = models.CharField(max_length=100, null=True)
+    career                 = models.PositiveIntegerField(null=True)
+    salary                 = models.PositiveIntegerField(null=True)
+    is_subscription        = models.BooleanField(default=False)
+    subscription_date      = models.DateField()
+    social_login           = models.ForeignKey('SocialLogin', on_delete=models.CASCADE, related_name='users')
+    occupation_subcategory = models.ForeignKey('recruitments.OccupationSubcategory', on_delete=models.CASCADE,related_name='users')
+    
     class Meta:
         db_table = 'users'
 
 class SocialCompany(models.Model):
     name = models.CharField(max_length=50)
+    
     class Meta:
         db_table = 'social_companies'
 
@@ -24,6 +28,7 @@ class SocialLogin(TimeStampModel):
     profile_image         = models.URLField(max_length=500, null=True)
     identification_number = models.CharField(max_length=500)
     social_company        = models.ForeignKey('SocialCompany', on_delete=models.CASCADE, related_name='social_login')
+    
     class Meta:
         db_table = 'social_logins'
 

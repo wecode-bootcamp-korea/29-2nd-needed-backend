@@ -1,4 +1,7 @@
+from enum        import Enum
+
 from django.db   import models
+
 from core.models import TimeStampModel, SoftDeleteModel
 
 class OccupationCategory(TimeStampModel):
@@ -27,7 +30,7 @@ class Recruitment(TimeStampModel):
         db_table = 'recruitments'
 
 class Application(TimeStampModel, SoftDeleteModel):
-    user               = models.ForeignKey('OccupationSubcategory', on_delete=models.CASCADE, related_name='applications')
+    user               = models.ForeignKey('users.SocialLogin', on_delete=models.CASCADE, related_name='applications')
     recruitment        = models.ForeignKey('Recruitment', on_delete=models.CASCADE, related_name='applications')
     application_status = models.ForeignKey('ApplicationStatus', on_delete=models.CASCADE, related_name='applications')
     
@@ -54,3 +57,10 @@ class Bookmark(TimeStampModel):
 
     class Meta:
         db_table = 'bookmarks'
+        
+class ApplicationEnum(Enum):
+    APPLICATION_COMPLELTE = 1
+    ACCPETED_DOCUMENT     = 2
+    FINAL_ACCEPTANCE      = 3
+    FAIL_ACCEPTANCE       = 4
+    
