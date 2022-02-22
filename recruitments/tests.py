@@ -1,5 +1,4 @@
 import json
-from unicodedata import name
 
 from django.test    import TestCase, Client
 
@@ -51,7 +50,6 @@ class RecruitmentsListTest(TestCase):
             company                = Company(id=1),
             occupation_subcategory = OccupationSubcategory(id=1)
         )
-        
     def tearDown(self):
         OccupationCategory.objects.all().delete()
         OccupationSubcategory.objects.all().delete()
