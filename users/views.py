@@ -97,18 +97,20 @@ class ProfileView(View):
                     .select_related("social_login","occupation_subcategory__occupation_category") \
                     .annotate(**annotate_set) \
                     .get(social_login = request.user) 
-
+        
         result = {
-            'email'           : user.social_login.email,
-            'profile_image'   : user.social_login.profile_image,
-            'name'            : user.social_login.name,
-            'job_category'    : user.occupation_subcategory.occupation_category.name,
-            'job_subcategory' : user.occupation_subcategory.name,
-            'phone_number'    : user.phone_number,
-            'address'         : user.address,
-            'career'          : user.career,
-            'salary'          : user.salary,
-            'application'     : [{
+            'email'             : user.social_login.email,
+            'profile_image'     : user.social_login.profile_image,
+            'name'              : user.social_login.name,
+            'job_category'      : user.occupation_subcategory.occupation_category.name if user.occupation_subcategory is not None else None,
+            'job_subcategory'   : user.occupation_subcategory.name if user.occupation_subcategory is not None else None,
+            'is_subscription'   : user.is_subscription,
+            'subscription_date' : user.subscription_date,
+            'phone_number'      : user.phone_number,
+            'address'           : user.address,
+            'career'            : user.career,
+            'salary'            : user.salary,
+            'application'       : [{
                 'application_complete' : user.application_complete,
                 'accepted_document'    : user.accepted_document,
                 'final_acceptance'     : user.final_acceptance,
