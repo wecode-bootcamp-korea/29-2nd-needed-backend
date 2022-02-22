@@ -57,3 +57,29 @@ class RecruitmentsList(View):
         
         except ValueError:
             return JsonResponse({'message':'VALUE_ERROR'}, status=400)
+
+class RecruitmentsDetailView(View):
+    def get(self, request, recruitment_id):
+        try:
+            recruitment = Recruitment.objects \
+                .select_related('company__detail_area__province__country') \
+                .prefetch_related('company__tag_companies__tag','company__company_images') \
+                .get(id = recruitment_id)
+
+            result = {
+                "id"           : recruitment.id,
+                "name"         : recruitment.name,
+                "deadline"     : recruitment.deadline,
+                "address"      : recruitment.address,
+                "compensation" : recruitment.compensation,
+                "company_name" : recruitment.company.name,
+                "country"      : recruitment.company.detail_area.province.country.name,
+                "province"     : recruitment.company.detail_area.province.name,
+                "logo_image"   : [{'image' : image.image_url} for image in recruitment.company.company_images.all()][0],
+                "tags"         : [{'tag' : tag.name } for tag in recruitment.company.tags.all()]
+            }
+            
+            return JsonResponse({'message':'SUCCESS' ,'result' : result}, status=200)
+        
+        except ValueError:
+            return JsonResponse({'message':'VALUE_ERROR'}, status=400)

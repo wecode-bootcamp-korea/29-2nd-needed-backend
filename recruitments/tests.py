@@ -86,3 +86,32 @@ class RecruitmentsListTest(TestCase):
                 "message": "SUCCESS"
             }
         )
+
+    def test_get_recruitment_detail_view_success(self):
+        client = Client()
+
+        response =  client.get('/recruitments1/1')
+        
+        self.assertEqual(response.json(), 
+            {
+                "message": "SUCCESS",
+                "result": {
+                    "address": "테헤란로",
+                    "company_name": "회사",
+                    "compensation": 1000,
+                    "country": "한국",
+                    "deadline": "2022-03-01",
+                    "id": 1,
+                    "logo_image": {
+                        "image": "test.jpg"
+                    },
+                    "name": "제목",
+                    "province": "서울",
+                    "tags": [
+                        {
+                            "tag": "워라밸"
+                        },
+                    ]
+                }
+            }
+        )
