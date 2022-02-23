@@ -41,7 +41,11 @@ class KakaoCallBackView(View):
             
             jwt_token = jwt.encode({'user_id' : user.id}, settings.SECRET_KEY, settings.ALGORITHM)
             
-            return JsonResponse({'message': "SUCCESS",'result':kakao_user,'access_token' : jwt_token}, status=status_code)
+            if User.objects.filter(social_login = user.id).exists():
+                return JsonResponse({'message': "SUCCESS",'result':kakao_user,'access_token' : jwt_token}, status=status_code)
+            
+            else:
+                return JsonResponse({'message': "NEED_SIGNUP",'result':kakao_user,'access_token' : jwt_token}, status=status_code)
 
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
