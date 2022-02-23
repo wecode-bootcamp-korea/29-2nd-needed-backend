@@ -88,19 +88,25 @@ class RecruitmentsDetailView(View):
                 .get(id = recruitment_id)
 
             result = {
-                "id"           : recruitment.id,
-                "name"         : recruitment.name,
-                "deadline"     : recruitment.deadline,
-                "address"      : recruitment.address,
-                "compensation" : recruitment.compensation,
-                "company_name" : recruitment.company.name,
-                "country"      : recruitment.company.detail_area.province.country.name,
-                "province"     : recruitment.company.detail_area.province.name,
-                "logo_image"   : [{'image' : image.image_url} for image in recruitment.company.company_images.all()][0],
-                "tags"         : [{'tag' : tag.name } for tag in recruitment.company.tags.all()]
+                "id"                        : recruitment.id,
+                "name"                      : recruitment.name,
+                "deadline"                  : recruitment.deadline,
+                "address"                   : recruitment.address,
+                "description"               : recruitment.description,
+                "compensation"              : recruitment.compensation,
+                "company_id"                : recruitment.company.id,
+                "company_name"              : recruitment.company.name,
+                "country"                   : recruitment.company.detail_area.province.country.name,
+                "province"                  : recruitment.company.detail_area.province.name,
+                "occupation_subcategory_id" : recruitment.occupation_subcategory.id,
+                "image"                     : [{'image' : image.image_url} for image in recruitment.company.company_images.all()],
+                "tags"                      : [{'tag' : tag.name } for tag in recruitment.company.tags.all()]
             }
             
             return JsonResponse({'message':'SUCCESS' ,'result' : result}, status=200)
         
         except ValueError:
             return JsonResponse({'message':'VALUE_ERROR'}, status=400)
+        
+        except Recruitment.DoesNotExist:
+            return JsonResponse({'message':'DOES_NOT_EXIST_RECRUITMENT'}, status=404)

@@ -27,6 +27,7 @@ class CompanyView(View):
                 'images'       : [{'image' : image.image_url} for image in company.company_images.all()],
                 'tags'         : [{'name'  : tag.name}  for tag in company.tags.all()],
                 'recruitments' : [{
+                        'id'           : recruitment.id,
                         'name'         : recruitment.name,    
                         'compensation' : recruitment.compensation,
                         'deadline'     : recruitment.deadline,
@@ -35,4 +36,4 @@ class CompanyView(View):
             return JsonResponse({"message" : 'SUCCESS', 'result' : result}, status=200)
         
         except Company.DoesNotExist:
-            return JsonResponse({'message' : 'DOES NOT EXIST COMPANY'}, status = 404)
+            return JsonResponse({'message' : 'DOES_NOT_EXIST_COMPANY'}, status = 404)
