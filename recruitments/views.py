@@ -1,10 +1,17 @@
+from email.mime import application
+import json
+from unittest import result
+
 from django.views        import View
 from django.http         import JsonResponse
+from django.db           import transaction
 from django.db.models    import Q, Prefetch
 
-from recruitments.models import OccupationCategory,Recruitment, OccupationSubcategory
+from recruitments.models import ApplicationEnum, ApplicationStatus, OccupationCategory, OccupationSubcategory, Recruitment, Application, ResumeApplication
+from resumes.models      import Resume
 from companies.models    import Company, Tag
-
+from core.utils          import authorization
+from core.models         import SoftDeleteModel
 
 class CategoryView(View):
     def get(self, request):
@@ -110,3 +117,60 @@ class RecruitmentsDetailView(View):
         
         except Recruitment.DoesNotExist:
             return JsonResponse({'message':'DOES_NOT_EXIST_RECRUITMENT'}, status=404)
+
+class ApplicationView(View):
+    @authorization
+    def post(self, request, recruitment_id):
+        try:
+            with transaction.atomic():
+                data    = json.loads(request.body)
+                resumes = data['resume_id'] 
+
+                application, is_application = Application.objects.get_or_create(
+                    user                  = request.user,
+                    recruitment_id        = recruitment_id,
+                    application_status_id = ApplicationEnum.APPLICATION_COMPLETE.value
+                )
+                if not is_application:
+                    return JsonResponse({"message" : "application already exist"}, status = 201)                
+
+                resume_applications = []
+                for resume in resumes:
+                    res = ResumeApplication(application_id=application.id, resume_id=resume)
+                    resume_applications.append(res)
+
+                ResumeApplication.objects.bulk_create(resume_applications)
+
+                return JsonResponse({"message" : "SUCCESS"}, status = 201)
+        
+        except KeyError as e:
+            return JsonResponse({"message" : "KEY_ERROR: " + str(e).replace("'", '')}, status = 400)
+        
+    @authorization
+    def delete(self, request, recruitment_id):
+        application = Application.objects.get(
+            user           = request.user,
+            recruitment_id = recruitment_id
+        )
+        application.soft_delete()
+        return JsonResponse({"message" : "SUCCESS"}, status = 200)
+    
+    @authorization
+    def patch(self, request, recruitment_id):
+        application = Application.all_objects.get(
+            user           = request.user,
+            recruitment_id = recruitment_id
+        )
+        application.restore()
+        return JsonResponse({"message" : "SUCCESS"}, status = 200)
+    
+    @authorization
+    def get(self, request, recruitment_id):
+        applications = Application.objects.prefetch_related(Prefetch('resume_applications__resume', queryset=Resume.objects.filter(user=request.user), to_attr='user_resumes')).select_related('application_status').filter(recruitment_id=recruitment_id)
+        
+        results = [{
+            "id"                 : application.id,
+            "resume"             : [{'file': resume.user_resumes.document, 'file_name' : resume.user_resumes.name} for resume in application.resume_applications.all()],
+            "application_status" : application.application_status.name
+        } for application in applications]
+        return JsonResponse({'message':'SUCCESS', 'result' : results}, status=200)
