@@ -5,7 +5,8 @@ from django.conf    import settings
 from unittest       import mock
 from unittest.mock  import patch
 
-from users.models   import *
+from users.models        import *
+from recruitments.models import *
 
 class KakaoSignInTest(TestCase):
     def setUp(self):
@@ -121,3 +122,48 @@ class UserDataTest(TestCase):
         response     =  client.post('/users/profile', json.dumps(user_data), content_type='application/json', **headers)
         
         self.assertEqual(response.status_code, 201)
+
+class SalaryTest(TestCase):
+    def setUp(self):
+        SocialCompany.objects.create(
+            id   = 1,
+            name = '카카오' 
+        )
+        SocialLogin.objects.create(
+            id                    = 1,
+            name                  = 'test',
+            email                 = 'test123@gmail.com',
+            identification_number = '132234245253',
+            profile_image         = '123123123123.jpg',
+            social_company        = SocialCompany.objects.get(id=1)
+        )
+        OccupationCategory.objects.create(
+            id                  = 1,
+            name                = '개발자'
+        )
+        OccupationSubcategory.objects.create(
+            id                  = 1,
+            name                = '백엔드',
+            occupation_category = OccupationCategory.objects.get(id=1)
+        )
+        User.objects.create(
+            id                     = 1, 
+            career                 = 1,
+            salary                 = 7000,
+            social_login           = SocialLogin.objects.get(id=1),
+            occupation_subcategory = OccupationSubcategory.objects.get(id=1)
+        )
+                    
+    def tearDown(self):
+        SocialLogin.objects.all().delete()
+        SocialCompany.objects.all().delete()
+        OccupationSubcategory.objects.all().delete()
+        OccupationCategory.objects.all().delete()
+        User.objects.all().delete()
+        
+    def test_get_salary_data_success(self):
+        client = Client()
+
+        response     =  client.get('/users/salary/1')
+        
+        self.assertEqual(response.json(), 200)

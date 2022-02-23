@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.http      import JsonResponse
 from django.views     import View
 from django.conf      import settings
-from django.db.models import Case, When, Count
+from django.db.models import Case, When, Count, Avg
 
 from core.utils          import KakaoAPI, authorization
 from users.models        import SocialCompanyEnum, User, SocialCompany, SocialLogin
@@ -123,3 +123,19 @@ class ProfileView(View):
         }
         
         return JsonResponse({'message' : 'SUCCESS', 'result' : result}, status = 200)
+    
+class SalaryView(View):
+    def get(self,request,occupation_id):
+        try:
+            occupation = OccupationSubcategory.objects.prefetch_related("users").filter(id = occupation_id)                    
+
+            salary_avg_list = [occupation.filter(users__career = i+1) \
+                                            .aggregate(Avg('users__salary')) \
+                                            .get("users__salary__avg") for i in range(11)]
+            
+            result          = {f"salary_avg_career_{key}": value for key, value in enumerate(salary_avg_list)}
+            
+            return JsonResponse({'message' : 'SUCCESS', 'result' : result}, status = 200)
+        
+        except TypeError:
+            return JsonResponse({'message' : 'DOES_NOT_EXIST_OCCUPATION'}, status = 404)
