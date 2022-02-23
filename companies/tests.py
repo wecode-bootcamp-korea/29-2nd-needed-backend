@@ -8,40 +8,50 @@ from companies.models      import *
 class CompanyViewTest(TestCase):
     def setUp(self):
         OccupationCategory.objects.create(
+            id                  = 1,
             name                = '개발자'
         )
         OccupationSubcategory.objects.create(
-            name                = '백엔드',
+            id                     = 1,
+            name                   = '백엔드',
             occupation_category_id = 1
         )
         Country.objects.create(
+            id                  = 1,
             name                = '한국'
         )
         Province.objects.create(
+            id                  = 1,
             name                = '서울',
             country             = Country(id=1)
         )
         DetailArea.objects.create(
+            id                  = 1,
             name                = '강남구',
             province            = Province(id=1)
         )
         Company.objects.create(
+            id                  = 1,
             name                = '회사',
             description         = '설명',
             detail_area         = DetailArea(id=1)
         )
         CompanyImage.objects.create(
+            id                  = 1,
             image_url           = 'test.jpg',
             company             = Company(id=1)
         )
         Tag.objects.create(
+            id                  = 1,
             name                = '워라밸'
         )
         TagCompany.objects.create(
+            id                  = 1,
             company             = Company(id=1),
             tag                 = Tag(id=1)
         )
         Recruitment.objects.create(
+            id                     = 1,
             name                   = '제목',
             description            = '설명',
             compensation           = 1000,
@@ -81,6 +91,7 @@ class CompanyViewTest(TestCase):
                         "name": "회사",
                         "recruitments": [
                             {
+                                "id": 1,
                                 "compensation": 1000,
                                 "deadline": "2022-03-01",
                                 "name": "제목"
