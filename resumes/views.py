@@ -1,4 +1,4 @@
-import boto3
+import boto3, json
 
 from django.views  import View
 from django.http   import JsonResponse
@@ -42,3 +42,20 @@ class ResumeView(View):
         } for resume in resumes]
 
         return JsonResponse({'message' : 'SUCCESS', 'results' : results}, status=200)
+
+    @authorization
+    def delete(self, request):        
+        data = json.loads(request.body)
+        resume_id = data['id']
+
+        key = Resume.objects.get(id = resume_id)
+
+        s3_client   = S3Client(settings.AWS_ACCESS_KEY_ID, 
+                                settings.AWS_SECRET_ACCESS_KEY, 
+                                settings.AWS_STORAGE_BUCKET_NAME)
+                                
+        s3_client.delete(key.document[49:])
+             
+        key.delete()
+        
+        return JsonResponse({'message' : 'SUCCESS'}, status=200)

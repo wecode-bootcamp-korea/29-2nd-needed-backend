@@ -21,3 +21,6 @@ class S3Client:
                 }
             ) 
         return settings.AWS + key
+
+    def delete(self, key):
+        self.s3.delete_object(Bucket=self.bucket_name, Key=key)
