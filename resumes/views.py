@@ -30,3 +30,15 @@ class ResumeView(View):
 
         except KeyError as e:
             return JsonResponse({"message" : "KEY_ERROR"}, status = 400)
+    
+    @authorization
+    def get(self, request):
+        resumes = Resume.objects.filter(user = request.user)
+
+        results = [{
+            "id"   : resume.id,
+            "name" : resume.name,
+            "url"  : resume.document,
+        } for resume in resumes]
+
+        return JsonResponse({'message' : 'SUCCESS', 'results' : results}, status=200)
