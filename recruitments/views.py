@@ -23,7 +23,7 @@ class CategoryView(View):
 
 class SubCategoryView(View):
     def get(self, request):
-        search           = request.GET.get('search',None)            
+        search = request.GET.get('search',None)            
         q = Q()
 
         if search:
@@ -54,15 +54,17 @@ class RecruitmentsList(View):
             filter_set = {
                 filters.get(key) : value for (key,value) in dict(request.GET).items() if filters.get(key)
             }
+            search           = request.GET.get('search',None)
+            q = Q()
 
-            if request.GET.get('search'):
-                filter_set["search"] = "occupation_subcategory__name__icontains"
+            if search:
+                q = Q(name__icontains = search)
             
             recruitments = Recruitment.objects \
                 .order_by(request.GET.get("sort",'id')) \
                 .select_related('company__detail_area__province__country') \
                 .prefetch_related('company__tag_companies__tag','company__company_images') \
-                .filter(**filter_set)
+                .filter(q, **filter_set)
                 
             result = [{
                 "id"           : recruitment.id,

@@ -9,14 +9,7 @@ from companies.models      import Company
 class CompanyView(View):
     def get(self, request, company_id):
         try:
-            search = request.GET.get('search',None)
-            q = Q()
-
-            if search:
-                q = Q(name__icontains = search)
-
             company = Company.objects \
-                                .filter(q) \
                                 .prefetch_related('company_images','tags','recruitments') \
                                 .get(id = company_id)
                                 
@@ -37,3 +30,20 @@ class CompanyView(View):
         
         except Company.DoesNotExist:
             return JsonResponse({'message' : 'DOES_NOT_EXIST_COMPANY'}, status = 404)
+
+class CompanySearchView(View):
+    def get(self, request):
+        search = request.GET.get('search',None)            
+        q = Q()
+
+        if search:
+            q = Q(name__icontains = search)
+
+        companies = Company.objects.filter(q)
+
+        results = [{
+            "id" : company.id,
+            "name" : company.name
+        }for company in companies]
+
+        return JsonResponse({"results" : results}, status = 200)
