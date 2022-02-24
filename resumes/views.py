@@ -20,6 +20,7 @@ class ResumeView(View):
 
                 resume = Resume(
                     document = s3_client.upload(resume_file, 'resume/'),
+                    name     = resume_file.name,
                     user     = request.user             
                 )
 
