@@ -1,7 +1,11 @@
 # 29-2nd-needed-backend
 
 ## Introduction
-구직자들 위한 채용 지원 사이트 __Needed__ 구현
+> 👉 I need YOU for the world’s leading companies!
+
+1. 다양한 일자리를 카테고리별로 나눠 구직자에게 접근성이 용이하게 합니다.
+2. 잡포스팅 외에도 다양한 이벤트, 직군별 연봉정보 등을 제공합니다.
+3. 각종 테마에 대하여 서로 의견을 주고받을 수 있는 커리어 커뮤니티를 가지고 있습니다.
 
 [Wanted](https://www.wanted.co.kr/)의 클론 코딩 프로젝트입니다.
 
@@ -14,7 +18,7 @@
 [Frontend Git Repository](https://github.com/wecode-bootcamp-korea/29-2nd-needed-frontend)
 
 ## 적용 기술 및 구현 기능
-- `Frontend`       : JavaScript, React.js, SASS, React-router-dom
+- `Frontend`       : JavaScript, React.js, SASS, React-router-dom, Styled Component
 - `Backend`        : Python, Django, MySQL, AWS(EC2, RDS, S3), Docker
 - `협업 및 일정 관리` : Git, Github, Slack, Trello, Notion, Figma
 
